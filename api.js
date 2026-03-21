@@ -1,0 +1,85 @@
+"use strict"
+// snake_case お願いします
+//
+// TODO:
+// timezone conversion T_T
+// error handling
+
+const helpers = require("./helpers.js");
+const format_broadcast = helpers.format_broadcast;
+const get_day = helpers.get_day;
+
+require("dotenv").config();
+const express = require("express");
+const app = express();
+const path = require("path");
+const fs = require("fs");
+const https = require("https");
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const VERSION = process.env.npm_package_version;
+const IS_DEV = process.env.APP_ENV == "dev" ? true : false;
+const PORT = IS_DEV ? process.env.DEV_PORT : process.env.PROD_PORT;
+
+const credentials = {
+	key: fs.readFileSync(IS_DEV ? process.env.DEV_PRIVATE_KEY : process.env.PROD_PRIVATE_KEY, "utf8"),
+	cert: fs.readFileSync(IS_DEV ? process.env.DEV_CERTIFICATE : process.env.PROD_CERTIFICATE, "utf8"),
+};
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.get("/user/:username", async (req, res) => {
+	const username = req.params.username;
+	// get user's currently watching anime
+	const watching_res = await fetch(`https://api.myanimelist.net/v2/users/${username}/animelist?status=watching&limit=20`, {
+		method: "GET",
+		headers: {
+			"X-MAL-CLIENT-ID": CLIENT_ID
+		}
+	});
+	// extract the MAL IDs for the anime entries
+	const watching_ids = (await watching_res.json()).data.map(anime => anime.node.id);
+
+	// get the anime release schedule
+	const anime_details = await Promise.all(
+		watching_ids.map(async (anime_id) => {
+			const anime_detail_res = await fetch(`https://api.myanimelist.net/v2/anime/${anime_id}?fields=id,title,main_picture,start_date,end_date,status,start_season,broadcast`, {
+				method: "GET",
+				headers: {
+					"X-MAL-CLIENT-ID": CLIENT_ID
+				}
+			});
+			return await anime_detail_res.json();
+		})
+	);
+	// filter currently airing anime
+	const anime_current = anime_details.filter(anime_detail => anime_detail.status == "currently_airing");
+	// add order property to make it sortable
+	anime_current.forEach(anime => anime.order = parseInt(`${get_day(anime.broadcast?.day_of_the_week)}${anime.broadcast?.start_time.replace(":", '')}`));
+	anime_current.sort((a, b) => a.order - b.order);
+	// format broadcast
+	let anime_today = 0;
+	let today = new Date().getDay();
+	anime_current.forEach(anime => {
+		if (get_day(anime.broadcast?.day_of_the_week) == today)
+			anime_today++;
+		anime.broadcast = format_broadcast(anime.broadcast)
+	});
+
+	let formatted_rows = new Array();
+	for (const anime of anime_current) {
+		formatted_rows.push(`${anime.broadcast}${anime.title}`);
+	}
+
+	const tooltip = `currently airing:\n
+${formatted_rows.join('\n')}`
+
+	res.status(200).json({
+		text: anime_today,
+		tooltip: tooltip
+	});
+});
+
+const https_server = https.createServer(credentials, app);
+https_server.listen(PORT, () => console.log("Running on port " + PORT));
