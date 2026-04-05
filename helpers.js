@@ -4,28 +4,28 @@ module.exports = {
 	format_broadcast: function(broadcast) {
 		switch(broadcast?.day_of_the_week) {
 			case "monday":
-				return `monday    ${broadcast.start_time} - `
+				return `monday ‎ ‎ ‎ ${broadcast.start_time} - `
 				break;
 			case "tuesday":
-				return `tuesday   ${broadcast.start_time} - `
+				return `tuesday ‎ ‎ ${broadcast.start_time} - `
 				break;
 			case "wednesday":
 				return `wednesday ${broadcast.start_time} - `
 				break;
 			case "thursday":
-				return `thursday  ${broadcast.start_time} - `
+				return `thursday ‎ ${broadcast.start_time} - `
 				break;
 			case "friday":
-				return `friday    ${broadcast.start_time} - `
+				return `friday ‎ ‎ ‎ ${broadcast.start_time} - `
 				break;
 			case "saturday":
-				return `saturday  ${broadcast.start_time} - `
+				return `saturday ‎ ${broadcast.start_time} - `
 				break;
 			case "sunday":
-				return `sunday    ${broadcast.start_time} - `
+				return `sunday ‎ ‎ ‎ ${broadcast.start_time} - `
 				break;
 			default:
-				return "                  " // spaces equals string length of day + start time
+				return `unknown ‎ ‎ 00:00 - `
 		}
 	},
 	get_day: function(day) {
@@ -40,4 +40,3 @@ module.exports = {
 		}
 	}
 }
-

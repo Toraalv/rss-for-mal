@@ -26,13 +26,18 @@ const credentials = {
 	cert: fs.readFileSync(IS_DEV ? process.env.DEV_CERTIFICATE : process.env.PROD_CERTIFICATE, "utf8"),
 };
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use("/static", express.static(path.join(__dirname, "public")));
 
-app.get("/user/:username", async (req, res) => {
+app.get('/', (req, res) => {
+	res.sendFile(path.join(__dirname,"index.html"));
+});
+
+app.get("/:rss/:username", async (req, res) => {
 	const username = req.params.username;
+	const rss = req.params.rss == "rss";
+
 	// get user's currently watching anime
-	const watching_res = await fetch(`https://api.myanimelist.net/v2/users/${username}/animelist?status=watching&limit=20`, {
+	const watching_res = await fetch(`https://api.myanimelist.net/v2/users/${username}/animelist?status=watching`, {
 		method: "GET",
 		headers: {
 			"X-MAL-CLIENT-ID": CLIENT_ID
@@ -60,7 +65,9 @@ app.get("/user/:username", async (req, res) => {
 	anime_current.sort((a, b) => a.order - b.order);
 	// format broadcast
 	let anime_today = 0;
-	let today = new Date().getDay();
+	let today = get_day(new Intl.DateTimeFormat("en-GB", {
+		weekday: "long"
+	}).format(new Date()).toLowerCase());
 	anime_current.forEach(anime => {
 		if (get_day(anime.broadcast?.day_of_the_week) == today)
 			anime_today++;
@@ -69,16 +76,43 @@ app.get("/user/:username", async (req, res) => {
 
 	let formatted_rows = new Array();
 	for (const anime of anime_current) {
-		formatted_rows.push(`${anime.broadcast}${anime.title}`);
+		if (anime.title.length > 51)
+			formatted_rows.push(`${anime.broadcast}${anime.title.slice(0, 48) + "..."}`);
+		else
+			formatted_rows.push(`${anime.broadcast}${anime.title}`);
 	}
 
 	const tooltip = `currently airing:\n
 ${formatted_rows.join('\n')}`
 
-	res.status(200).json({
-		text: anime_today,
-		tooltip: tooltip
-	});
+	if (rss) {
+		// format the rows into RSS
+		formatted_rows.forEach(function(row, index) { this[index] =
+`<item xml:space="preserve">
+<title>${row}</title>
+<description>${anime_current[index].title}</description>
+</item>`
+		}, formatted_rows);
+
+		res.type("text/xml");
+		res.send(
+`<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+<title>RSS for MyAnimeList</title>
+<description>${username}'s currently airing schedule</description>
+<link>https://rfm.toralv.dev</link>
+<ttl>0</ttl>
+${formatted_rows.join('\n')}
+</channel>
+</rss>
+`);
+	} else {
+		res.status(200).json({
+			text: anime_today,
+			tooltip: tooltip
+		});
+	}
 });
 
 const https_server = https.createServer(credentials, app);

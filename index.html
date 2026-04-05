@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>MyAnimeList airing anime RSS feed & Waybar module</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="API wrapper for MyAnimeList that serves your currently watching and airing anime's broadcast schedule. Two formats are available, RSS and a JSON formatted string made for waybar (wayland bar for Swaywm and Wlroots based compositors)">
+		<meta name="robots" content="noindex">
+		<link rel="icon" href="/static/favicon.ico">
+		<link rel="stylesheet" href="/static/style.css">
+
+		<link rel="stylesheet" href="/static/devibeans.css">
+		<script src="/static/highlight.min.js"></script>
+		<script>hljs.highlightAll();</script>
+	</head>
+
+	<body>
+		<header>
+			<div>
+				version 1.0.0
+			</div>
+			<div>
+				made by Toralv | <a href="https://toralv.dev">website</a> | <a href="https://myanimelist.net/profile/Toralv">MAL</a>
+			</div>
+		</header>
+		<h1>MyAnimeList airing anime RSS feed & Waybar module</h1>
+		<span>
+			This is a simple API wrapper for <a href="https://myanimelist.net">MyAnimeList</a> that fetches a requested users currently watching, and airing, anime, and then fetches the broadcast schedule for these. The data is then presented as either RSS or as a JSON formatted string, specifically made for <a href="https://github.com/Alexays/Waybar">Waybar</a>.
+		</span>
+		<hr>
+		<h3>Waybar module:</h3>
+		<pre>
+		<code class="language-jsonc">
+// change format to whatever you want
+// the values returned by the API is "text" and "tooltip"
+// text is the amount of animes that airs today
+// tooltip is the schedule for all anime that you're watching and is currently airing
+
+// change interval to whatever fits you best
+// I usually turn off my computer everyday so 'once' works great
+// see possible values at: https://github.com/Alexays/Waybar/wiki/Module:-Custom
+
+"custom/anime": {
+	"format": "MAL {}",
+	"return-type": "json",
+	"interval": "once",
+	"exec": "curl -k https://rfm.toralv.dev/user/$USER"
+}
+		</code>
+		</pre>
+		<pre>
+		<code class="language-bash">
+$: curl -k https://rfm.toralv.dev/user/Toralv
+# {"text":1,"tooltip":"currently airing:\n\nwednesday 21:30 - Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e ...\nfriday    23:00 - Tensei shitara Slime Datta Ken 4th Season\nsaturday  23:30 - Akane-banashi\nsunday    00:30 - Needy Girl Overdose\nunknown   00:00 - Steel Ball Run: JoJo no Kimyou na Bouken"}
+		</code>
+		</pre>
+		<span>hovering the module and it will look something like this:</span>
+		<img src="/static/waybar-example.png">
+		<hr>
+
+		<h3>RSS:</h3>
+		<pre>
+		<code class="language-xml">
+# curl -k https://rfm.toralv.dev/rss/Toralv
+
+&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;rss version="2.0"&gt;
+	&lt;channel&gt;
+		&lt;title&gt;RSS for MyAnimeList&lt;/title&gt;
+		&lt;description&gt;Toralv's currently airing schedule&lt;/description&gt;
+		&lt;link&gt;https://rfm.toralv.dev&lt;/link&gt;
+		&lt;ttl&gt;0&lt;/ttl&gt;
+		&lt;item xml:space="preserve"&gt;
+			&lt;title&gt;wednesday 21:30 - Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e ...&lt;/title&gt;
+			&lt;description&gt;Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e 4th Season: 2-nensei-hen 1 Gakki&lt;/description&gt;
+		&lt;/item&gt;
+		&lt;item xml:space="preserve"&gt;
+			&lt;title&gt;friday    23:00 - Tensei shitara Slime Datta Ken 4th Season&lt;/title&gt;
+			&lt;description&gt;Tensei shitara Slime Datta Ken 4th Season&lt;/description&gt;
+		&lt;/item&gt;
+		&lt;item xml:space="preserve"&gt;
+			&lt;title&gt;saturday  23:30 - Akane-banashi&lt;/title&gt;
+			&lt;description&gt;Akane-banashi&lt;/description&gt;
+		&lt;/item&gt;
+		&lt;item xml:space="preserve"&gt;
+			&lt;title&gt;sunday    00:30 - Needy Girl Overdose&lt;/title&gt;
+			&lt;description&gt;Needy Girl Overdose&lt;/description&gt;
+		&lt;/item&gt;
+		&lt;item xml:space="preserve"&gt;
+			&lt;title&gt;unknown   00:00 - Steel Ball Run: JoJo no Kimyou na Bouken&lt;/title&gt;
+			&lt;description&gt;Steel Ball Run: JoJo no Kimyou na Bouken&lt;/description&gt;
+		&lt;/item&gt;
+	&lt;/channel&gt;
+&lt;/rss&gt;
+		</code>
+		</pre>
+	</body>
+</html>

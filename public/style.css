@@ -1,0 +1,42 @@
+html {
+	color: #dddddd;
+	background-color: #0f0f0f;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+body {
+	max-width: 1000px;
+	width: 80vw;
+}
+
+header {
+	display: flex;
+	justify-content: space-between;
+	padding: 10px;
+}
+
+a, a:visited {
+	color: #2870ff;
+}
+
+code {
+	border-bottom: #808080 1px solid;
+	border-right: #808080 1px solid;
+	border-top: #555555 1px solid;
+	border-left: #555555 1px solid;
+
+	font-size: 1.1em;
+	background-color: black;
+}
+
+img {
+	margin: 10px 0;
+	width: 100%;
+}
+
+pre {
+	padding: 0 !important;
+	margin: 0 !important;
+}
