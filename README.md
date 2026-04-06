@@ -4,4 +4,4 @@
 # RSS for MyAnimeList, and Waybar module
 The API and website is available at [rfm.toralv.dev](https://rfm.toralv.dev).
 
-You are free to selfhost your own instance.
+You are free to selfhost your own instance though you will need your own access to the MAL API.
