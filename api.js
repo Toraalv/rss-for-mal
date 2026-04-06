@@ -3,7 +3,6 @@
 //
 // TODO:
 // timezone conversion T_T
-// error handling
 
 const helpers = require("./helpers.js");
 const format_broadcast = helpers.format_broadcast;
@@ -33,8 +32,20 @@ app.get('/', (req, res) => {
 });
 
 app.get("/:rss/:username", async (req, res) => {
+	console.log(`[LOG]:   ${req.headers['x-forwarded-for']}\trequested: ${req.originalUrl}`);
 	const username = req.params.username;
 	const rss = req.params.rss == "rss";
+	const waybar = req.params.rss == "waybar";
+
+	// drop requests that have not specified a format
+	if (!rss && !waybar) {
+		console.log(`[ERROR]: malformed request`);
+		res.status(400).json({
+			error: "malformed request",
+			tip: "usage: /{rss|waybar}/username"
+		});
+		return;
+	}
 
 	// get user's currently watching anime
 	const watching_res = await fetch(`https://api.myanimelist.net/v2/users/${username}/animelist?status=watching`, {
@@ -43,10 +54,21 @@ app.get("/:rss/:username", async (req, res) => {
 			"X-MAL-CLIENT-ID": CLIENT_ID
 		}
 	});
+	if (watching_res.status == 404)	{
+		console.log(`[ERROR]: ${req.originalUrl} not found`);
+		res.status(404).json({
+			error: "user not found"
+		});
+		return;
+	}
 	// extract the MAL IDs for the anime entries
 	const watching_ids = (await watching_res.json()).data.map(anime => anime.node.id);
+	if (watching_ids.length == 0)
+		console.log(`[INFO]:  ${req.originalUrl} returned no currently watching anime`);
 
 	// get the anime release schedule
+	// NB: doesn't actually send any request to MAL if watching_ids is empty
+	//     the rest of the code just copes
 	const anime_details = await Promise.all(
 		watching_ids.map(async (anime_id) => {
 			const anime_detail_res = await fetch(`https://api.myanimelist.net/v2/anime/${anime_id}?fields=id,title,main_picture,start_date,end_date,status,start_season,broadcast`, {
@@ -63,6 +85,7 @@ app.get("/:rss/:username", async (req, res) => {
 	// add order property to make it sortable
 	anime_current.forEach(anime => anime.order = parseInt(`${get_day(anime.broadcast?.day_of_the_week)}${anime.broadcast?.start_time.replace(":", '')}`));
 	anime_current.sort((a, b) => a.order - b.order);
+	console.log(anime_current);
 	// format broadcast
 	let anime_today = 0;
 	let today = get_day(new Intl.DateTimeFormat("en-GB", {
@@ -107,10 +130,14 @@ ${formatted_rows.join('\n')}
 </channel>
 </rss>
 `);
-	} else {
+	} else if (waybar) {
 		res.status(200).json({
 			text: anime_today,
 			tooltip: tooltip
+		});
+	} else {
+		res.status(500).json({
+			error: "unexpected error"
 		});
 	}
 });

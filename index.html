@@ -20,13 +20,16 @@
 				version 1.0.0
 			</div>
 			<div>
-				made by Toralv | <a href="https://toralv.dev">website</a> | <a href="https://myanimelist.net/profile/Toralv">MAL</a>
+				made by Toralv | <a href="https://github.com/Toraalv/rss-for-mal">git</a> | <a href="https://toralv.dev">website</a> | <a href="https://myanimelist.net/profile/Toralv">MAL</a>
 			</div>
 		</header>
 		<h1>MyAnimeList airing anime RSS feed & Waybar module</h1>
-		<span>
+		<div>
 			This is a simple API wrapper for <a href="https://myanimelist.net">MyAnimeList</a> that fetches a requested users currently watching, and airing, anime, and then fetches the broadcast schedule for these. The data is then presented as either RSS or as a JSON formatted string, specifically made for <a href="https://github.com/Alexays/Waybar">Waybar</a>.
-		</span>
+		</div>
+		<div>
+			Feedback or suggestions are welcome, reach me at <a href="mailto:rfm@toralv.dev">rfm@toralv.dev</a>
+		</div>
 		<hr>
 		<h3>Waybar module:</h3>
 		<pre>
@@ -40,17 +43,20 @@
 // I usually turn off my computer everyday so 'once' works great
 // see possible values at: https://github.com/Alexays/Waybar/wiki/Module:-Custom
 
-"custom/anime": {
+// remember to put "custom/rfm" in either modules-left, modules-center or modules-right
+
+"custom/rfm": {
 	"format": "MAL {}",
 	"return-type": "json",
 	"interval": "once",
-	"exec": "curl -k https://rfm.toralv.dev/user/$USER"
+	"exec": "curl -k https://rfm.toralv.dev/waybar/$USER"
 }
 		</code>
 		</pre>
+		<span>example output that waybar then reads:</span>
 		<pre>
 		<code class="language-bash">
-$: curl -k https://rfm.toralv.dev/user/Toralv
+$: curl -k https://rfm.toralv.dev/waybar/Toralv
 # {"text":1,"tooltip":"currently airing:\n\nwednesday 21:30 - Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e ...\nfriday    23:00 - Tensei shitara Slime Datta Ken 4th Season\nsaturday  23:30 - Akane-banashi\nsunday    00:30 - Needy Girl Overdose\nunknown   00:00 - Steel Ball Run: JoJo no Kimyou na Bouken"}
 		</code>
 		</pre>

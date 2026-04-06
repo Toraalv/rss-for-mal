@@ -37,6 +37,7 @@ module.exports = {
 			case "friday":    return 5; break;
 			case "saturday":  return 6; break;
 			case "sunday":    return 7; break;
+			default:          return 99999999; // unknown broadcast is placed at the bottom
 		}
 	}
 }

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "APP_ENV=dev nodemon api.js",
     "test:dev": "APP_ENV=dev npx jest",
-    "deploy:prod": "APP_ENV=prod node api.js"
+    "deploy:prod": "APP_ENV=prod node api.js",
+    "deploy:preview": "APP_ENV=prod nodemon api.js"
   },
   "keywords": [],
   "author": "Toralv",
