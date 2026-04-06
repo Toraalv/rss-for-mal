@@ -85,7 +85,6 @@ app.get("/:rss/:username", async (req, res) => {
 	// add order property to make it sortable
 	anime_current.forEach(anime => anime.order = parseInt(`${get_day(anime.broadcast?.day_of_the_week)}${anime.broadcast?.start_time.replace(":", '')}`));
 	anime_current.sort((a, b) => a.order - b.order);
-	console.log(anime_current);
 	// format broadcast
 	let anime_today = 0;
 	let today = get_day(new Intl.DateTimeFormat("en-GB", {
