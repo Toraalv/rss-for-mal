@@ -1,5 +1,5 @@
 [![License: The Unlicense License](https://img.shields.io/badge/License-Unlicense-blue.svg)](https://unlicense.org/)
-![version: 1.0.0](https://img.shields.io/badge/version-1.0.0-blue)
+![version: 1.0.1](https://img.shields.io/badge/version-1.0.1-blue)
 
 # RSS for MyAnimeList, and Waybar module
 This is a simple API wrapper for [MyAnimeList](https://myanimelist.net) that fetches a requested users currently watching, and airing, anime, and then fetches the broadcast schedule for these. The data is then presented as either RSS or as a JSON formatted string, specifically made for [Waybar](https://github.com/Alexays/Waybar).
