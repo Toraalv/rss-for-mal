@@ -91,20 +91,23 @@ app.get("/:rss/:username", async (req, res) => {
 		weekday: "long"
 	}).format(new Date()).toLowerCase());
 	anime_current.forEach(anime => {
-		if (get_day(anime.broadcast?.day_of_the_week) == today)
+		anime.today = false;
+		if (get_day(anime.broadcast?.day_of_the_week) == today) {
 			anime_today++;
-		anime.broadcast = format_broadcast(anime.broadcast)
+			anime.today = true;
+		}
+		anime.broadcast = format_broadcast(anime.broadcast);
 	});
 
 	let formatted_rows = new Array();
 	for (const anime of anime_current) {
 		if (anime.title.length > 51)
-			formatted_rows.push(`${anime.broadcast}${anime.title.slice(0, 48) + "..."}`);
+			formatted_rows.push(`${anime.today ? "<b>" : ''}${anime.broadcast}${anime.title.slice(0, 48) + "..."}${anime.today ? "</b>" : ''}`);
 		else
-			formatted_rows.push(`${anime.broadcast}${anime.title}`);
+			formatted_rows.push(`${anime.today ? "<b>" : ''}${anime.broadcast}${anime.title}${anime.today ? "</b>" : ''}`);
 	}
 
-	const tooltip = `currently airing:\n
+	const tooltip = `currently airing (UTC+9):\n
 ${formatted_rows.join('\n')}`
 
 	if (rss) {
