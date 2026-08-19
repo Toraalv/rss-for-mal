@@ -47,8 +47,8 @@ app.get("/:rss/:username", async (req, res) => {
 		return;
 	}
 
-	// get user's currently watching anime
-	const watching_res = await fetch(`https://api.myanimelist.net/v2/users/${username}/animelist?status=watching`, {
+	// get user's currently watching anime, limits to 100 entries
+	const watching_res = await fetch(`https://api.myanimelist.net/v2/users/${username}/animelist?status=watching&limit=100`, {
 		method: "GET",
 		headers: {
 			"X-MAL-CLIENT-ID": CLIENT_ID
